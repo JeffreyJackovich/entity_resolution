@@ -1,0 +1,21 @@
+language: python
+
+python:
+  - "3.7"
+
+before_install:
+  - python --version
+  - pip install -U pip
+  - pip install -U pytest
+  - pip install pytest pytest-cov
+  - pip install codecov
+
+install:
+  - export PYTHONPATH=$PYTHONPATH:$(pwd)/entity_resolution
+  - pip install -r requirements.txt
+
+script:
+  - python -m pytest # run tests
+
+after_success:
+  - codecov # submit coverage
