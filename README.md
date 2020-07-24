@@ -21,6 +21,12 @@ Assess the perforamnce based on:
 ## Results
 
 
+## TODO
+- [ ] Display results
+- [ ] Setup Travis CI 
+- [ ] Setup Code Coverage 
+- [ ] Refactor main.py
+
 
 ## What is Entity Resolution
 Entity Resolution (ER) refers to the task of finding records in a dataset that refer to the same entity across different data sources (e.g., data files, books, websites, databases). ER is necessary when joining datasets based on entities that may or may not share a common identifier (e.g., database key, URI, National identification number), as may be the case due to differences in record shape, storage location, and/or curator style or preference. A dataset that has undergone ER may be referred to as being cross-linked [2].
