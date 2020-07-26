@@ -156,6 +156,8 @@ fabric.properties
 *.DS_Store
 .AppleDouble
 .LSOverride
+data/external/__MACOSX
+entity_resolution/__MACOSX
 
 # Icon must end with two \r
 Icon

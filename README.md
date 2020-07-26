@@ -22,10 +22,11 @@ Assess the perforamnce based on:
 
 
 ## TODO
-- [ ] Display results
+- [x] Display results
+- [x] Refactor main.py
 - [ ] Setup Travis CI 
 - [ ] Setup Code Coverage 
-- [ ] Refactor main.py
+- [ ] Setup logging
 
 
 ## What is Entity Resolution
