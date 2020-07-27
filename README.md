@@ -1,6 +1,12 @@
 # entity_resolution
 
 
+|Service|Status|
+| -------------: | :---- |
+| Travis Build   | [![Build Status](https://travis-ci.org/JeffreyJackovich/entity_resolution.svg?branch=master)](https://travis-ci.org/JeffreyJackovich/entity_resolution) |
+
+
+
 ## Goal
 Compare the performance to identify duplicate records with string_grouper (tf-idf and cosine similarity) 
 vs Postgresql's 'GROUP BY' in a dataset with exact and partial duplicates. 
