@@ -36,17 +36,17 @@ Records '706030'
 
 
 ## Results
-| Method | Time| 
-| -------------: | :---- |
-| SQL | 8.7 sec  |  
-| string_grouper | 1499.2 sec (~25 mins)|        
+| Method | Time | Duplicates Identified|
+| :-------------: | :----: | :----: |
+| SQL | 8.7 sec  |  tbd |
+| string_grouper | 1499.2 sec (~25 mins)| tbd |        
 
 
 
 ## TODO
 - [x] Display results
 - [x] Refactor main.py
-- [ ] Setup Travis CI 
+- [x] Setup Travis CI 
 - [ ] Setup Code Coverage 
 - [ ] Setup logging
 
