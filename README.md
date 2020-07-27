@@ -14,8 +14,8 @@ vs Postgresql's 'GROUP BY' in a dataset with exact and partial duplicates.
 
 ## Objectives
 Assess the perforamnce based on:
-    1. Duplicate records identified 
-    2. Query duration
+ 1. Quantity of Duplicate records identified 
+ 2. Query duration
  
 
 ## Steps
@@ -36,10 +36,10 @@ Records '706030'
 
 
 ## Results
-| Method | Time(seconds)|
+| Method | Time| 
 | -------------: | :---- |
-| SQL | 8.77 |
-| string_grouper | 1499.23|
+| SQL | 8.7 sec  |  
+| string_grouper | 1499.2 sec (~25 mins)|        
 
 
 
