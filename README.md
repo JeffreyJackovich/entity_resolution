@@ -8,8 +8,8 @@
 
 
 ## Goal
-Compare the performance to identify duplicate records with string_grouper (tf-idf and cosine similarity) 
-vs Postgresql's 'GROUP BY' in a dataset with exact and partial duplicates. 
+Compare the performance of string_grouper (tf-idf and cosine similarity) vs Postgresql's 'GROUP BY' to identify 
+duplicate records.  The dataset contains both exact and partial duplicates, thus, 'GROUP BY' will only retrieve exact duplicates.  
 
 
 ## Objectives
@@ -32,7 +32,7 @@ python3 main.py
 ```
 ## Dataset
 Postgresql table.column 'processed_donors.name'
-Records '706030'
+Records '706,030'
 
 
 ## Results
