@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# from get_duplicate_records import get_partial_duplicates
 from pytest import fixture
 # from mock import patch, Mock
 from duplicate_record import DuplicateRecord
