@@ -6,11 +6,9 @@ Reference library: https://github.com/Bergvca/string_grouper
 """
 import pandas as pd
 from string_grouper import match_strings, group_similar_strings, StringGrouper
-from time import time
 import psycopg2
 from psycopg2.errors import DatabaseError, OperationalError, SyntaxError
 pd.set_option('display.max_columns', None)
-from os import getenv
 
 from postgres import DATABASE_NAME
 from postgres import DATABASE_USER
