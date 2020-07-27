@@ -14,11 +14,27 @@ Assess the perforamnce based on:
 
 ## Steps
 1. Setup a virtual env (*requires Python version >3.7)  
-2. Install dependencies 'pip install -r requirements.txt' 
+2. Install dependencies `pip install -r requirements.txt`
 3. Create a PostgreSQL database
+4. Set environment variables with your PostgreSQL connection details
+
+
+
+```bash
+python3 main.py 
+
+```
+## Dataset
+Postgresql table.column 'processed_donors.name'
+Records '706030'
 
 
 ## Results
+| Method | Time(seconds)|
+| -------------: | :---- |
+| SQL | 8.77 |
+| string_grouper | 1499.23|
+
 
 
 ## TODO
