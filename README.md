@@ -13,8 +13,8 @@ duplicate records.  The dataset contains both exact and partial duplicates, thus
 
 
 ## Objectives
-Assess the perforamnce based on:
- 1. Quantity of Duplicate records identified 
+Assess the performance based on:
+ 1. Quantity of duplicate records identified 
  2. Query duration
  
 
