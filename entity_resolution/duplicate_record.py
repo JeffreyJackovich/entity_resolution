@@ -59,7 +59,7 @@ class DuplicateRecord:
         """
         self.connect()
         df = pd.read_sql_query('SELECT * '
-                               'FROM processed_donors ; ', con=self.con)
+                               'FROM processed_donors; ', con=self.con)
 
         df['deduplicated_names'] = group_similar_strings(df['name'])
         # print(df.groupby('deduplicated_names').count().sort_values('donor_id', ascending=False).head(20)['donor_id'])
