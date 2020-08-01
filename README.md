@@ -4,7 +4,7 @@
 |Service|Status|
 | -------------: | :---- |
 | Travis Build   | [![Build Status](https://travis-ci.org/JeffreyJackovich/entity_resolution.svg?branch=master)](https://travis-ci.org/JeffreyJackovich/entity_resolution) |
-
+| Coverage | [![codecov](https://codecov.io/gh/JeffreyJackovich/entity_resolution/branch/master/graph/badge.svg)](https://codecov.io/gh/JeffreyJackovich/entity_resolution) |
 
 
 ## Goal
@@ -47,7 +47,7 @@ Records '706,030'
 - [x] Display results
 - [x] Refactor main.py
 - [x] Setup Travis CI 
-- [ ] Setup Code Coverage 
+- [x] Setup Code Coverage 
 - [ ] Setup logging
 
 
