@@ -1,7 +1,9 @@
-from dataset import Dataset
+#!/usr/bin/env python3
 from pytest import fixture
-
+# from dataset import Dataset
+from entity_resolution.dataset import Dataset
 from dataset import EXTERNAL_DATA_DIR
+
 
 @fixture
 def my_dataset():

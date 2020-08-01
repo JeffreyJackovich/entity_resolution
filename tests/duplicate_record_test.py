@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 from pytest import fixture
 # from mock import patch, Mock
-from duplicate_record import DuplicateRecord
+# from duplicate_record import DuplicateRecord
+from entity_resolution.duplicate_record import DuplicateRecord
+
 
 
 @fixture
