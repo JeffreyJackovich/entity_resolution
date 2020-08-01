@@ -16,7 +16,7 @@ install:
 
 script:
   - python -m pytest ./tests # run tests
+  - py.test --cov-report=xml --cov=entity_resolution tests/
 
 after_success:
   - codecov # submit coverage
-  - bash <(curl -s https://codecov.io/bash)
