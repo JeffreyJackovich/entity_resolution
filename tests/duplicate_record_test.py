@@ -2,13 +2,13 @@
 from pytest import fixture
 # from mock import patch, Mock
 # from duplicate_record import DuplicateRecord
-from entity_resolution.duplicate_record import DuplicateRecord
+from entity_resolution import duplicate_record
 
 
 
 @fixture
 def duplicate():
-    return DuplicateRecord()
+    return duplicate_record.DuplicateRecord()
 
 # def test_string_grouper(duplicate):
 #     df = {'name': ['apple', 'apple', 'orange']}
