@@ -11,7 +11,7 @@ before_install:
   - pip install codecov
 
 install:
-  - export PYTHONPATH=$PYTHONPATH:$(pwd)/entity_resolution
+#  - export PYTHONPATH=$PYTHONPATH:$(pwd)/entity_resolution
   - pip install -r requirements.txt
 
 script:
