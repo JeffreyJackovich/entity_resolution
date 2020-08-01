@@ -10,6 +10,7 @@ import psycopg2
 from psycopg2.errors import DatabaseError, OperationalError, SyntaxError
 pd.set_option('display.max_columns', None)
 
+
 from postgres import DATABASE_NAME
 from postgres import DATABASE_USER
 from postgres import DATABASE_PASSWORD
