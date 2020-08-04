@@ -8,49 +8,56 @@
 
 
 ## Goal
-Compare the performance of string_grouper (tf-idf and cosine similarity) vs Postgresql's 'GROUP BY' to identify 
-duplicate records.  The dataset contains both exact and partial duplicates, thus, 'GROUP BY' will only retrieve exact duplicates.  
+Scripts to setup a Postgres database with a 1Million+ record dataset to assess 
+['string_grouper'](https://github.com/Bergvca/string_grouper), a library that 
+makes finding groups of similar strings within a single or within multiple lists of strings easy.
 
+string_grouper uses tf-idf to calculate the cosine similarities within a single list or between two lists of strings.
 
-## Objectives
-Assess the performance based on:
- 1. Quantity of duplicate records identified 
- 2. Query duration
  
+## Objectives
+1. Setup Postgres database with 4 tables 
+2. Assess string_grouper performance vs. SQL 'GROUP BY':
+    1. Quantity of duplicate records identified 
+    2. Query duration
 
-## Steps
-1. Setup a virtual env (*requires Python version >3.7)  
-2. Install dependencies `pip install -r requirements.txt`
-3. Create a PostgreSQL database
-4. Set environment variables with your PostgreSQL connection details
-
-
-
-```bash
-python3 main.py 
-
-```
 ## Dataset
-Postgresql table.column 'processed_donors.name'
-Records '706,030'
+There are about 700,000 unduplicated donors in this database of Illinois political campaign contributions.  
+
+## Setup
+1. Setup a virtual environment (*requires Python version >3.7)  
+2. Install dependencies `pip install -r requirements.txt`
+3. Create a PostgreSQL database, set environment variables with your PostgreSQL connection details
+
+## Quick Start
+```bash
+git clone https://github.com/JeffreyJackovich/entity_resolution
+cd entity_resolution
+```
+1. Get exact duplicates via SQL GROUP BY. `python main.py -ged`
+2. Get partial duplicates via string_grouper. `python main.py -gpd`
+3. Pass in SQL query from command line. Example `python main.py -q "SELECT count(distinct name) FROM processed_donors;"` 
 
 
 ## Results
-| Method | Time | Duplicates Identified|
-| :-------------: | :----: | :----: |
-| SQL | 8.7 sec  |  tbd |
-| string_grouper | 1499.2 sec (~25 mins)| tbd |        
+ 
+| Method | Time | Unique Count | Duplicate Count| Total Count |
+| :-------------: | :----: | :----: | :----: | :----: |
+| SQL | 13.40 sec (0.223 min)  |  432,201 | 273,829 | 706,030 |
+| string_grouper | 1575.6 sec (26.26 min)| 315,088 | 390,942 | 706,030 |        
 
 
-## What is Entity Resolution
+(Source table.column: processed_donors.name)
+
+
+## Postgresql db Setup commands
+1. Download the 'Illinois political campaign contributions' dataset. `python main.py -gd`
+2. Setup database tables. `python main.py -sd`
+
+
+## What is Entity Resolution?
 Entity Resolution (ER) refers to the task of finding records in a dataset that refer to the same entity across different data sources (e.g., data files, books, websites, databases). ER is necessary when joining datasets based on entities that may or may not share a common identifier (e.g., database key, URI, National identification number), as may be the case due to differences in record shape, storage location, and/or curator style or preference. A dataset that has undergone ER may be referred to as being cross-linked [2].
 
-## TODO
-- [x] Display results
-- [x] Refactor main.py
-- [x] Setup Travis CI 
-- [x] Setup Code Coverage 
-- [ ] Setup logging
 
 ## Data Source
 Illinois Campaign Contributions, Github repository, https://s3.amazonaws.com/dedupe-data/Illinois-campaign-contributions.txt.zip
