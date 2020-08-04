@@ -54,27 +54,66 @@ class DuplicateRecord:
 
 
     def get_partial_duplicates(self):
-        """Uses string_grouper to groups similar strings and returns records in a DataFrame.
+        """Uses string_grouper to groups similar strings and return records in a DataFrame.
 
         :return: df
         """
         self.connect()
-        df = pd.read_sql_query('SELECT * '
+        # df = pd.read_sql_query('SELECT donor_id, name '
+        #                        'FROM processed_donors '
+        #                        'LIMIT 1000; ', con=self.con)
+
+        df = pd.read_sql_query('SELECT donor_id, name '
                                'FROM processed_donors; ', con=self.con)
 
         df['deduplicated_names'] = group_similar_strings(df['name'])
         # print(df.groupby('deduplicated_names').count().sort_values('donor_id', ascending=False).head(20)['donor_id'])
-        df = df.groupby('deduplicated_names').count().sort_values('donor_id', ascending=False).head(20)['donor_id']
-        return df
+
+        # df = df.groupby('deduplicated_names').count().sort_values('donor_id', ascending=False).head(20)['donor_id']
+        grouped_df = df.groupby('deduplicated_names').count().sort_values('donor_id', ascending=False)['donor_id']
+
+        grouped_nan_count = df.deduplicated_names.isna().sum()
+
+        grouped_unique_count = df.deduplicated_names.nunique()
+        grouped_total_count = len(df)
+        grouped_duplicate_count = grouped_total_count - grouped_unique_count
+        return grouped_unique_count, grouped_duplicate_count, grouped_total_count, grouped_nan_count
+
 
     def get_exact_duplicates(self):
-        """Uses GROUP BY to returns exact duplicates in a DataFrame.
+        """Uses GROUP BY to identify duplicate records and return the output in a DataFrame.
 
         """
         self.connect()
 
-        df = pd.read_sql_query('SELECT name '
-                               'FROM processed_donors '
-                               'GROUP BY name; ', con=self.con)
+        # df = pd.read_sql_query('SELECT name '
+        #                        'FROM processed_donors '
+        #                        'GROUP BY name; ', con=self.con)
+
+
+        df = pd.read_sql_query('''
+                            SELECT name, 
+                            count(*) 
+                            FROM processed_donors 
+                            GROUP BY name
+                            ORDER BY count(*) DESC;''', con=self.con)
+
         df = df.head(20)
+        return df
+
+    def get_cmdline_query(self, cmdline_query:str):
+        """
+
+        :param query:
+        :return:
+        """
+        self.connect()
+        # tested queries:
+        # python main.py -q "SELECT count(distinct name) FROM processed_donors;"
+        # python main.py -q "SELECT (count(name) - count(distinct name)) as duplicate_count FROM processed_donors;"
+        # python main.py -q "SELECT count(*) FROM processed_donors WHERE name IS NULL;"
+
+        df = pd.read_sql_query('''%s''' % cmdline_query, con=self.con)
+
+        df = df.head(50)
         return df

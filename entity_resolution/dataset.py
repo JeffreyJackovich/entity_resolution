@@ -72,7 +72,7 @@ class Dataset:
                         continue
                     csv_writer.writerow(row)
         else:
-            print(f"\tAlready downloaded file: {contributions_csv_file[91:]}")
+            print(f"\tAlready downloaded file: {contributions_csv_file[91:]}\n")
 
 
 class DatasetReader:

@@ -30,6 +30,43 @@ _file = 'Illinois-campaign-contributions'
 contributions_csv_file = CONTRIBUTIONS_PATH + _file + '.csv'
 
 
+# TODO: Complete PostgresConnection
+# class PostgresConnection:
+#
+#     def __init__(self):
+#         self.dbname = DATABASE_NAME
+#         self.username = DATABASE_USER
+#         self.password = DATABASE_PASSWORD
+#         self.host = DATABASE_HOST
+#         self.port = DATABASE_PORT
+#         self.con = None
+#         self.schema = DATABASE_SCHEMA_NAME
+#         self.csv_file = None
+#
+#     def cursur(self):
+#         """Returns a cursor object and starts a new transaction"""
+#         pass
+#     def commit(self):
+#         """Commits current transaction"""
+#         pass
+#     def rollback(self):
+#         """Rolls back current transaction"""
+#         pass
+#
+#     def __enter__(self):
+#         cursor = self.cursor()
+#         return cursor
+#
+#     def __exit__(self, exc_type, exc_val, exc_tb):
+#         if exc_tb is None:
+#             #No exception, so commit
+#             self.commit()
+#         else:
+#             #Exception occured, so rollback
+#             self.rollback()
+
+
+
 class Postgres:
     """PostgreSQL database class."""
 
@@ -48,6 +85,7 @@ class Postgres:
         """Connect to a PostgreSQL database."""
 
         if self.con is None:
+
             try:
                 self.con = psycopg2.connect(db=self.dbname,
                                             user=self.username,
@@ -57,19 +95,16 @@ class Postgres:
                                             options=f"-c search_path={self.schema}")
                 self.con.autocommit = True
 
-            except DatabaseError as e:
-                print(f"The error {e} occured")
+            except (DatabaseError, AttributeError, Exception) as e:
+                print(f"Error: {e}")
                 # self.logs.error("Connection request failed: %s" % e)
-            except AttributeError as e:
-                print(f"The error {e} occured")
-                # self.logs.error("Connection request failed: %s" % e)
-            finally:
-                print(f"Connection opened successfully.")
+
 
 
     def execute_query(self, query: str):
         """Executes a query."""
 
+        # self.connect()
         self.connect()
         with self.con.cursor() as cur:
             try:
@@ -79,7 +114,9 @@ class Postgres:
             # except SyntaxError:
                 # self.logs.error("execute_query failed: %s" % query)
             except DatabaseError as e:
-                print(f"The error {e} occured")
+                print(f"Error: {e}")
+            else:
+                print("Query executed")
 
 
     def copy_csv_query(self):
@@ -99,17 +136,22 @@ class Postgres:
                     committee_name, committee_id) 
                 FROM STDIN CSV HEADER;
         ''')
-        self.connect()
-        csv_file = open(contributions_csv_file, 'r')
+        try:
+            csv_file = open(contributions_csv_file, 'r')
+        except (EOFError, IOError, FileNotFoundError) as error:
+            print('Error: {}'.format(error))
+            raise error
 
+
+        self.connect()
 
         with self.con.cursor() as cur:
             cur.copy_expert(copy_raw_table, csv_file)
             csv_file.close()
             self.con.commit()
+            cur.close()
             rowcount = cur.rowcount
-
-        return "{} rows affected".format(rowcount)
+            return "{} rows affected".format(rowcount)
 
 
     def fetchall_query(self, query: str):
@@ -119,7 +161,9 @@ class Postgres:
         with self.con.cursor() as cur:
             cur.execute(query)
             records = cur.fetchall()
+            cur.close()
             return records
+
 
     def drop_table(self):
         """Drops tables"""
@@ -138,9 +182,22 @@ class Postgres:
         drop_processed_donors = ('''
                 DROP TABLE IF EXISTS processed_donors;
             ''')
+
         drop_queries = [drop_raw_table, drop_donors, drop_recipients, drop_contributions, drop_processed_donors]
-        for drop_query in drop_queries:
-            self.execute_query(drop_query)
+
+        self.connect()
+        with self.con.cursor() as cur:
+            try:
+                for drop_query in drop_queries:
+                    cur.execute(drop_query)
+
+                self.con.commit()
+
+            except DatabaseError as e:
+                print(f"Error: {e}")
+            else:
+                print("Tables Dropped")
+
 
 
     def create_table(self):
@@ -149,7 +206,7 @@ class Postgres:
         :return:
         """
         create_raw_table = ('''
-                CREATE TABLE raw_table
+                CREATE TABLE IF NOT EXISTS raw_table
                     (reciept_id INT, last_name VARCHAR(70), first_name VARCHAR(35),
                     address_1 VARCHAR(35), address_2 VARCHAR(36), city VARCHAR(20),
                     state VARCHAR(15), zip VARCHAR(11), report_type VARCHAR(24),
@@ -166,7 +223,7 @@ class Postgres:
         ''')
 
         create_donors = ('''
-                CREATE TABLE donors 
+                CREATE TABLE IF NOT EXISTS donors 
                     (donor_id SERIAL PRIMARY KEY, 
                     last_name VARCHAR(70), first_name VARCHAR(35), 
                     address_1 VARCHAR(35), address_2 VARCHAR(36), 
@@ -176,12 +233,12 @@ class Postgres:
         ''')
 
         create_recipients = ('''
-                CREATE TABLE recipients 
+                CREATE TABLE IF NOT EXISTS recipients 
                     (recipient_id SERIAL PRIMARY KEY, name VARCHAR(70));
         ''')
 
         create_table_contributions = ('''
-                CREATE TABLE contributions 
+                CREATE TABLE IF NOT EXISTS contributions 
                     (contribution_id INT, donor_id INT, recipient_id INT, 
                     report_type VARCHAR(24), date_recieved DATE, 
                     loan_amount VARCHAR(12), amount VARCHAR(23), 
@@ -195,11 +252,21 @@ class Postgres:
                     report_period_begin DATE, report_period_end DATE);
         ''')
 
+        # create_table_queries = [create_raw_table, create_donors, create_recipients, create_table_contributions ]
+        self.connect()
+        with self.con.cursor() as cur:
+            try:
+                cur.execute(create_raw_table)
+                cur.execute(create_donors)
+                cur.execute(create_recipients)
+                cur.execute(create_table_contributions)
 
-        self.execute_query(create_raw_table)
-        self.execute_query(create_donors)
-        self.execute_query(create_recipients)
-        self.execute_query(create_table_contributions)
+                self.con.commit()
+
+            except DatabaseError as e:
+                print(f"Error: {e}")
+            else:
+                print("Tables Created")
 
 
 
@@ -260,6 +327,7 @@ class Postgres:
             cur.execute(insert_into_contributions)
 
             self.con.commit()
+            cur.close()
             rowcount = cur.rowcount
             return "{} rows affected".format(rowcount)
 
@@ -312,6 +380,7 @@ class Postgres:
         with self.con.cursor() as cur:
             cur.execute(nullify_in_donors)
             self.con.commit()
+            cur.close()
             row_count = cur.rowcount
             return "{} rows affected".format(row_count)
 
@@ -346,3 +415,29 @@ class Postgres:
 
         self.execute_query(create_processed_donors)
         self.execute_query(create_pd_index)
+
+
+    def get_query_statistics(self):
+        """
+        source: https://www.postgresql.eu/events/nordicpgday2018/sessions/session/1858/slides/68/query-optimization-techniques_talk.pdf
+        :return:
+        """
+        query_statistics = ('''
+           WITH ttl AS (
+                SELECT 
+                    sum(total_time) AS total_time,
+                    sum(blk_read_time + blk_write_time) AS io_time,
+                    sum(total_time - blk_read_time - blk_write_time) AS cpu_time,
+                    sum(calls) AS ncalls,
+                    sum(rows) AS total_rows
+                FROM 
+                    pg_stat_statements
+                WHERE 
+                    dbid IN (SELECT oid FROM pg_database WHERE datname=current_database())
+                )
+                SELECT *,(pss.total_time - pss.blk_read_time - pss.blk_write_time)/ttl.cpu_time >= 0.05
+                ORDER BY pss.total_time - pss.blk_read_time - pss.blk_write_time DESC LIMIT 1;
+        ''')
+        self.execute_query(query_statistics)
+
+
