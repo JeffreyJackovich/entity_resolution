@@ -1,5 +1,3 @@
-# entity_resolution
-
 
 |Service|Status|
 | -------------: | :---- |
@@ -24,23 +22,41 @@ string_grouper uses tf-idf to calculate the cosine similarities within a single 
 ## Dataset
 There are about 700,000 unduplicated donors in this database of Illinois political campaign contributions.[3]  
 
-## Setup
+## Setup  
 1. Setup a virtual environment (*requires Python version >3.7)  
 2. Install dependencies `pip install -r requirements.txt`
 3. Create a PostgreSQL database, set environment variables with your PostgreSQL connection details
 
-## Quick Start
+
+
 ```bash
 git clone https://github.com/JeffreyJackovich/entity_resolution
 cd entity_resolution
 ```
-1. Get exact duplicates via SQL GROUP BY. `python main.py -ged`
-2. Get partial duplicates via string_grouper. `python main.py -gpd`
-3. Pass in SQL query from command line. Example `python main.py -q "SELECT count(distinct name) FROM processed_donors;"` 
+#### Postgres Setup 
+1. Download the 'Illinois political campaign contributions' dataset. 
+2. Setup database tables.
+```bash 
+python main.py -gd 
+python main.py -sd
+```
 
-## Postgresql db Setup commands
-1. Download the 'Illinois political campaign contributions' dataset. `python main.py -gd`
-2. Setup database tables. `python main.py -sd`
+#### Duplicate Identification
+1. Get exact duplicates via SQL GROUP BY. 
+```bash 
+python main.py -ged
+```
+
+2. Get partial duplicates via string_grouper.
+```bash 
+python main.py -gpd
+```
+
+#### Commandline SQL query for exploratory analysis, etc. 
+Example query:  
+```bash 
+python main.py -q "SELECT count(distinct name) FROM processed_donors;"
+```
 
 
 ## Results
@@ -49,7 +65,7 @@ cd entity_resolution
 | :-------------: | :----: | :----: | :----: | :----: |
 | SQL | 13.40 sec (0.223 min)  |  432,201 | 273,829 | 706,030 |
 | string_grouper | 1575.6 sec (26.26 min)| 315,088 | 390,942 | 706,030 |        
-| Difference| +1562.2 sec (+26.03 min) | -117,113 | +117,113 | 0 *added for reference|
+| Difference| +1562.2 sec (+26.03 min) | -117,113 | +117,113 | 0 |
 
 string_grouper default paramaters: 
 (Source Data: table.column: processed_donors.name)
@@ -57,12 +73,12 @@ Laptop Processor: 2.5 GHz Intel Core i5
 
 ## Conclusion
 string_grouper identified 117,113 more records as duplicate compared to using 'group by' with SQL.  Next step 
-is assess string_grouper's performance based on: ecall, precision, and F-1 Score.  
+is assess string_grouper's performance based on: recall, precision, and F-1 Score.  
 
 ## Next Steps
-1. Evaluate string_grouper's performance based on: Recall, Precision, and F-1 Score.
+1. Evaluate string_grouper's performance based on: Recall, Precision, and F-1 Score.    
 
-2. Test the functions available in Postgresql's [fuzzstrmatch] (https://www.postgresql.org/docs/9.6/fuzzystrmatch.html) 
+2. Test the functions available in Postgresql's [fuzzstrmatch](https://www.postgresql.org/docs/9.6/fuzzystrmatch.html) 
   module to determine similarities and distance between strings.
 
 3. Use Apache Spark's to perform Entity Resolution.  
