@@ -35,43 +35,6 @@ _file = 'Illinois-campaign-contributions'
 contributions_csv_file = CONTRIBUTIONS_PATH + _file + '.csv'
 
 
-# TODO: Complete PostgresConnection
-# class PostgresConnection:
-#
-#     def __init__(self):
-#         self.dbname = DATABASE_NAME
-#         self.username = DATABASE_USER
-#         self.password = DATABASE_PASSWORD
-#         self.host = DATABASE_HOST
-#         self.port = DATABASE_PORT
-#         self.con = None
-#         self.schema = DATABASE_SCHEMA_NAME
-#         self.csv_file = None
-#
-#     def cursur(self):
-#         """Returns a cursor object and starts a new transaction"""
-#         pass
-#     def commit(self):
-#         """Commits current transaction"""
-#         pass
-#     def rollback(self):
-#         """Rolls back current transaction"""
-#         pass
-#
-#     def __enter__(self):
-#         cursor = self.cursor()
-#         return cursor
-#
-#     def __exit__(self, exc_type, exc_val, exc_tb):
-#         if exc_tb is None:
-#             #No exception, so commit
-#             self.commit()
-#         else:
-#             #Exception occured, so rollback
-#             self.rollback()
-
-
-
 class Postgres:
     """PostgreSQL database class."""
 
@@ -101,7 +64,6 @@ class Postgres:
                 self.con.autocommit = True
 
             except (DatabaseError, AttributeError, Exception) as e:
-                # print(f'Error: {e}')
                 exception(f'Connection request failed: {e}')
 
 
@@ -109,7 +71,6 @@ class Postgres:
     def execute_query(self, query: str):
         """Executes a query."""
 
-        # self.connect()
         self.connect()
         with self.con.cursor() as cur:
             try:
