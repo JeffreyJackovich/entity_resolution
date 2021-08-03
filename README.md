@@ -6,11 +6,10 @@
 
 
 ## Goal
-Scripts to setup a Postgres database with a 1Million+ record dataset to assess 
-['string_grouper'](https://github.com/Bergvca/string_grouper), a library that 
-makes finding groups of similar strings within a single or within multiple lists of strings easy.
-
-string_grouper uses tf-idf to calculate the cosine similarities within a single list or between two lists of strings.
+1. Provide scripts to setup a Postgres database with a 1Million+ records.
+2. Assess Postgres's GROUP BY vs ['string_grouper'](https://github.com/Bergvca/string_grouper), a library that finds 
+groups of similar strings using tf-idf to calculate the cosine similarities within a single list or between two lists 
+of strings.
 
  
 ## Objectives
