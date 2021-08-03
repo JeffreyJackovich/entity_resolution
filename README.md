@@ -34,9 +34,11 @@ cd entity_resolution
 ```
 #### Postgres Setup 
 1. Download the 'Illinois political campaign contributions' dataset. 
-2. Setup database tables.
 ```bash 
 python main.py -gd 
+```
+2. Setup database tables.
+```bash 
 python main.py -sd
 ```
 

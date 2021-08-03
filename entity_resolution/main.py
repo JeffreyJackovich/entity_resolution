@@ -48,51 +48,56 @@ def main(args):
         info('Dropping tables if exist..\n')
         info(db.drop_table())
 
-        info('Creating the tables..\n')
+        info('Creating the tables..')
         info(db.create_table())
 
-        info('Importing raw data from csv...\n')
+        info('Importing raw data from csv..')
         info(db.copy_csv_query())
 
-        info('Inserting data into tables...\n')
+        info('Inserting data into tables..')
         info(db.insert())
 
-        info('Creating indexes on tables...\n')
-        # print('creating indexes on donors table...')
-        # print('creating indexes on contributions...')
+        info('Creating indexes on tables..')
         info(db.create_index())
 
-        info('Nullifying empty strings in donors...\n')
+        info('Nullifying empty strings in donors..')
         info(db.update_rows())
 
         db.process_donors_table()
+        info('Done.')
 
 
     elif args.get_partial_duplicate:
+        #################################################################################
+        # '-gpd'
+        #################################################################################
         info('Starting string_grouper...\n')
         dup_record = Postgres()
 
-        sg_start_time = time()
         unique, duplicate, total, nans = dup_record.get_partial_duplicates()
         info(f'Unique: {unique}, Duplicate: {duplicate}, Total: {total}, Nan: {nans}')
 
+
     elif args.get_exact_duplicate:
+        #################################################################################
+        # '-ged'
+        #################################################################################
         info('Starting get_exact_duplicates...\n')
-        sql_start_time = time()
         dup_record = Postgres()
 
         info(dup_record.get_exact_duplicates())
 
 
+
     sql_query = args.sql_query
+    #################################################################################
+    # '-q'
+    #################################################################################
     if sql_query:
         dr = Postgres()
         print(dr.get_cmdline_query(sql_query))
 
 
-    elif args.get_query_statistics:
-        db = Postgres()
-        db.get_query_statistics()
 
 
 if __name__ == "__main__":
@@ -128,10 +133,7 @@ if __name__ == "__main__":
                         type=str,
                         help='SQL query to execute.')
 
-    parser.add_argument('-gqs',
-                        '--get_query_statistics',
-                        action='store_true',
-                        default=False)
+
 
     start_time = time()
     try:

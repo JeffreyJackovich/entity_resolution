@@ -8,6 +8,7 @@ from entity_resolution.postgres import DATABASE_SCHEMA_NAME
 def postgres():
     return Postgres()
 
-
 def test_database_schema():
     assert DATABASE_SCHEMA_NAME
+
+

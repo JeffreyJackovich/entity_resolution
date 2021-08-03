@@ -82,7 +82,6 @@ class Postgres:
             except SyntaxError as e:
                 exception(f'SyntaxError: {e}')
             except DatabaseError as e:
-                # print(f'Error: {e}')
                 exception(f'Database Error: {e}')
 
             else:
@@ -164,7 +163,7 @@ class Postgres:
                 self.con.commit()
 
             except DatabaseError as e:
-                print(f"Error: {e}")
+                info(f'DatabaseError: {e}')
             else:
                 print("Tables Dropped")
 
@@ -177,28 +176,48 @@ class Postgres:
         """
         create_raw_table = ('''
                 CREATE TABLE IF NOT EXISTS raw_table
-                    (reciept_id INT, last_name VARCHAR(70), first_name VARCHAR(35),
-                    address_1 VARCHAR(35), address_2 VARCHAR(36), city VARCHAR(20),
-                    state VARCHAR(15), zip VARCHAR(11), report_type VARCHAR(24),
-                    date_recieved VARCHAR(10), loan_amount VARCHAR(12),
-                    amount VARCHAR(23), receipt_type VARCHAR(23),
-                    employer VARCHAR(70), occupation VARCHAR(40),
-                    vendor_last_name VARCHAR(70), vendor_first_name VARCHAR(20),
-                    vendor_address_1 VARCHAR(35), vendor_address_2 VARCHAR(31),
-                    vendor_city VARCHAR(20), vendor_state VARCHAR(10),
-                    vendor_zip VARCHAR(10), description VARCHAR(90),
-                    election_type VARCHAR(10), election_year VARCHAR(10),
-                    report_period_begin VARCHAR(10), report_period_end VARCHAR(33),
-                    committee_name VARCHAR(70), committee_id VARCHAR(37));
+                    (reciept_id INT, 
+                    last_name VARCHAR(70), 
+                    first_name VARCHAR(35),
+                    address_1 VARCHAR(35), 
+                    address_2 VARCHAR(36), 
+                    city VARCHAR(20),
+                    state VARCHAR(15), 
+                    zip VARCHAR(11), 
+                    report_type VARCHAR(24),
+                    date_recieved VARCHAR(10), 
+                    loan_amount VARCHAR(12),
+                    amount VARCHAR(23), 
+                    receipt_type VARCHAR(23),
+                    employer VARCHAR(70), 
+                    occupation VARCHAR(40),
+                    vendor_last_name VARCHAR(70), 
+                    vendor_first_name VARCHAR(20),
+                    vendor_address_1 VARCHAR(35), 
+                    vendor_address_2 VARCHAR(31),
+                    vendor_city VARCHAR(20), 
+                    vendor_state VARCHAR(10),
+                    vendor_zip VARCHAR(10), 
+                    description VARCHAR(90),
+                    election_type VARCHAR(10), 
+                    election_year VARCHAR(10),
+                    report_period_begin VARCHAR(10), 
+                    report_period_end VARCHAR(33),
+                    committee_name VARCHAR(70), 
+                    committee_id VARCHAR(37));
         ''')
 
         create_donors = ('''
                 CREATE TABLE IF NOT EXISTS donors 
                     (donor_id SERIAL PRIMARY KEY, 
-                    last_name VARCHAR(70), first_name VARCHAR(35), 
-                    address_1 VARCHAR(35), address_2 VARCHAR(36), 
-                    city VARCHAR(20), state VARCHAR(15), 
-                    zip VARCHAR(11), employer VARCHAR(70), 
+                    last_name VARCHAR(70), 
+                    first_name VARCHAR(35), 
+                    address_1 VARCHAR(35), 
+                    address_2 VARCHAR(36), 
+                    city VARCHAR(20), 
+                    state VARCHAR(15), 
+                    zip VARCHAR(11), 
+                    employer VARCHAR(70), 
                     occupation VARCHAR(40));
         ''')
 
@@ -209,17 +228,26 @@ class Postgres:
 
         create_table_contributions = ('''
                 CREATE TABLE IF NOT EXISTS contributions 
-                    (contribution_id INT, donor_id INT, recipient_id INT, 
-                    report_type VARCHAR(24), date_recieved DATE, 
-                    loan_amount VARCHAR(12), amount VARCHAR(23), 
+                    (contribution_id INT, 
+                    donor_id INT, 
+                    recipient_id INT, 
+                    report_type VARCHAR(24), 
+                    date_recieved DATE, 
+                    loan_amount VARCHAR(12), 
+                    amount VARCHAR(23), 
                     receipt_type VARCHAR(23), 
                     vendor_last_name VARCHAR(70), 
                     vendor_first_name VARCHAR(20), 
-                    vendor_address_1 VARCHAR(35), vendor_address_2 VARCHAR(31), 
-                    vendor_city VARCHAR(20), vendor_state VARCHAR(10), 
-                    vendor_zip VARCHAR(10), description VARCHAR(90), 
-                    election_type VARCHAR(10), election_year VARCHAR(10), 
-                    report_period_begin DATE, report_period_end DATE);
+                    vendor_address_1 VARCHAR(35), 
+                    vendor_address_2 VARCHAR(31), 
+                    vendor_city VARCHAR(20), 
+                    vendor_state VARCHAR(10), 
+                    vendor_zip VARCHAR(10), 
+                    description VARCHAR(90), 
+                    election_type VARCHAR(10), 
+                    election_year VARCHAR(10), 
+                    report_period_begin DATE, 
+                    report_period_end DATE);
         ''')
 
         # create_table_queries = [create_raw_table, create_donors, create_recipients, create_table_contributions ]
@@ -234,7 +262,7 @@ class Postgres:
                 self.con.commit()
 
             except DatabaseError as e:
-                print(f"Error: {e}")
+                info(f'DatabaseError: {e}')
             else:
                 print("Tables Created")
 
@@ -387,28 +415,6 @@ class Postgres:
         self.execute_query(create_pd_index)
 
 
-    def get_query_statistics(self):
-        """
-        source: https://www.postgresql.eu/events/nordicpgday2018/sessions/session/1858/slides/68/query-optimization-techniques_talk.pdf
-        :return:
-        """
-        query_statistics = ('''
-           WITH ttl AS (
-                SELECT 
-                    sum(total_time) AS total_time,
-                    sum(blk_read_time + blk_write_time) AS io_time,
-                    sum(total_time - blk_read_time - blk_write_time) AS cpu_time,
-                    sum(calls) AS ncalls,
-                    sum(rows) AS total_rows
-                FROM 
-                    pg_stat_statements
-                WHERE 
-                    dbid IN (SELECT oid FROM pg_database WHERE datname=current_database())
-                )
-                SELECT *,(pss.total_time - pss.blk_read_time - pss.blk_write_time)/ttl.cpu_time >= 0.05
-                ORDER BY pss.total_time - pss.blk_read_time - pss.blk_write_time DESC LIMIT 1;
-        ''')
-        self.execute_query(query_statistics)
 
 
     def get_partial_duplicates(self):
@@ -417,18 +423,16 @@ class Postgres:
         :return: df
         """
         self.connect()
-        # df = pd.read_sql_query('SELECT donor_id, name '
-        #                        'FROM processed_donors '
-        #                        'LIMIT 1000; ', con=self.con)
-
         df = pd.read_sql_query('SELECT donor_id, name '
-                               'FROM processed_donors; ', con=self.con)
+                               'FROM processed_donors '
+                               'LIMIT 100000; ', con=self.con)
+
+        # df = pd.read_sql_query('SELECT donor_id, name '
+        #                        'FROM processed_donors; ', con=self.con)
 
         df['deduplicated_names'] = group_similar_strings(df['name'])
-        # print(df.groupby('deduplicated_names').count().sort_values('donor_id', ascending=False).head(20)['donor_id'])
 
-        # df = df.groupby('deduplicated_names').count().sort_values('donor_id', ascending=False).head(20)['donor_id']
-        grouped_df = df.groupby('deduplicated_names').count().sort_values('donor_id', ascending=False)['donor_id']
+        # grouped_df = df.groupby('deduplicated_names').count().sort_values('donor_id', ascending=False)['donor_id']
 
         grouped_nan_count = df.deduplicated_names.isna().sum()
 
