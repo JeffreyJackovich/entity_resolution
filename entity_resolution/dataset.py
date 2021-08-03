@@ -10,82 +10,87 @@ import zipfile
 import requests
 import unidecode
 from collections import Counter
-
-ABS_PATH = path.abspath('..')
-EXTERNAL_DATA_DIR = '/data/external/'
-CONTRIBUTIONS_PATH = ABS_PATH + EXTERNAL_DATA_DIR
-
-
-_file = 'Illinois-campaign-contributions'
-contributions_zip_file = CONTRIBUTIONS_PATH + _file + '.txt.zip'
-contributions_txt_file = CONTRIBUTIONS_PATH + _file + '.txt'
-contributions_csv_file = CONTRIBUTIONS_PATH + _file + '.csv'
+from logging import info
 
 
 class Dataset:
     """A helper to process the Illinois-campaign-contributions dataset."""
 
-    def __init__(self, CONTRIBUTIONS_PATH: str):
-        self.CONTRIBUTIONS_PATH = CONTRIBUTIONS_PATH
+    SOURCE_URL = 'https://s3.amazonaws.com/dedupe-data/Illinois-campaign-contributions.txt.zip'
+    _file = 'Illinois-campaign-contributions'
+    contributions_zip_file = _file + '.txt.zip'
+    contributions_txt_file = _file + '.txt'
+    contributions_csv_file = _file + '.csv'
 
+    def __init__(self, PATH: str):
+        self.PATH = PATH
 
-    def download_file(self):
+    def download_zipfile(self):
         """Downloads Illinois-campaign-contributions.txt.zip.
-            Unzips a zipfile to txt format.
-            Converts the tab-delimited raw file to csv.
         """
-
-        if not path.exists(contributions_zip_file):
-            print('downloading', contributions_zip_file, '(~60mb) ...')
-            u = requests.get(
-                'https://s3.amazonaws.com/dedupe-data/Illinois-campaign-contributions.txt.zip')
-            localFile = open(contributions_zip_file, 'wb')
+        # check if file already exists
+        if not path.exists(self.PATH + Dataset.contributions_zip_file):
+            info('downloading', self.PATH + Dataset.contributions_zip_file, '(~60mb) ...')
+            u = requests.get(Dataset.SOURCE_URL)
+            localFile = open(self.PATH + Dataset.contributions_zip_file, 'wb')
             localFile.write(u.content)
             localFile.close()
         else:
-            print(f"\tAlready downloaded file: {contributions_zip_file[91:]} ")
+            info(f"\tAlready downloaded file: {self.PATH + Dataset.contributions_zip_file[91:]} ")
 
-        if not path.exists(contributions_txt_file):
-            zip_file = zipfile.ZipFile(contributions_zip_file, 'r')
-            print('extracting %s' % contributions_zip_file)
+    def unzip_zipfile(self):
+        """
+        Unzips a zipfile to txt format.
+        :return:
+        """
+        if not path.exists(self.PATH + Dataset.contributions_txt_file):
+            zip_file = zipfile.ZipFile(self.PATH + Dataset.contributions_zip_file, 'r')
+            info('extracting %s' % self.PATH + Dataset.contributions_zip_file)
             zip_file_contents = zip_file.namelist()
             for f in zip_file_contents:
-                if ('.txt' in f):
-                    zip_file.extract(f, path=CONTRIBUTIONS_PATH)
+                if (Dataset.contributions_txt_file in f):
+                    zip_file.extract(f, path=self.PATH)
             zip_file.close()
         else:
-            print(f"\tAlready downloaded file: {contributions_txt_file[91:]}")
+            info(f"\tAlready downloaded file: {self.PATH + Dataset.contributions_txt_file[91:]}")
 
 
-        if not path.exists(contributions_csv_file):
-            print('converting tab-delimited raw file to csv...')
-            with open(contributions_txt_file, 'rU') as txt_file, \
-                    open(contributions_csv_file, 'w') as csv_file:
+    def transform_txt_to_csv(self):
+        """
+        Converts the tab-delimited raw file to csv.
+        :return:
+        """
+        if not path.exists(self.PATH + Dataset.contributions_csv_file):
+            info('converting tab-delimited raw file to csv...')
+            with open(self.PATH + Dataset.contributions_txt_file, 'rU') as txt_file, \
+                    open(self.PATH + Dataset.contributions_csv_file, 'w') as csv_file:
                 csv_writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
                 for line in txt_file:
                     if not all(ord(c) < 128 for c in line):
                         line = unidecode.unidecode(line)
                     row = line.rstrip('\t\r\n').split('\t')
                     if len(row) != 29:
-                        print('skipping bad row (length %s, expected 29):' % len(row))
-                        print(row)
+                        info('skipping bad row (length %s, expected 29):' % len(row))
+                        info(row)
                         continue
                     csv_writer.writerow(row)
         else:
-            print(f"\tAlready downloaded file: {contributions_csv_file[91:]}\n")
+            info(f"\tAlready downloaded file: {self.PATH + Dataset.contributions_csv_file[91:]}\n")
 
 
 class DatasetReader:
-    """CSV helper to display summary statistics without reading the 1million+ row csv into memory."""
+    """CSV helper to display csv summary statistics."""
+    _file = 'Illinois-campaign-contributions'
+    contributions_csv_file = _file + '.csv'
 
-    def __init__(self, path):
-        self.path = path
+    def __init__(self, PATH: str):
+        self.PATH = PATH
         self._length = None
 
     def __iter__(self):
         self._length = 0
         self._counter = Counter()
-        with open(self.path, 'rU') as data:
+        with open(self.PATH + DatasetReader.contributions_csv_file, 'rU') as data:
             reader = csv.DictReader(data)
             for row in reader:
                 self._length += 1

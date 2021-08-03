@@ -19,34 +19,31 @@ from logging import info
 
 ABS_PATH = path.abspath('..')
 EXTERNAL_DATA_DIR = '/data/external/'
-CONTRIBUTIONS_PATH = ABS_PATH + EXTERNAL_DATA_DIR
-
-_file = 'Illinois-campaign-contributions'
-contributions_zip_file = CONTRIBUTIONS_PATH + _file + '.txt.zip'
-contributions_txt_file = CONTRIBUTIONS_PATH + _file + '.txt'
-contributions_csv_file = CONTRIBUTIONS_PATH + _file + '.csv'
-
 
 def main(args):
-    basicConfig(filename=ABS_PATH + '/entity_resolution/entity_resolution/log_file.log',
+    basicConfig(filename=ABS_PATH + '/entity_resolution/log_file.log',
                 format='%(asctime)s - %(lineno)d - %(name)s - %(levelname)s - %(message)s',
                 filemode='a', level=DEBUG)  # level=ERROR
 
     if args.get_dataset:
+        #################################################################################
+        # '-gd'
+        #################################################################################
         info('Downloading the dataset..\n')
-        source_dataset = Dataset(CONTRIBUTIONS_PATH)
-        source_dataset.download_file()
+        source_dataset = Dataset(ABS_PATH + EXTERNAL_DATA_DIR)
+        source_dataset.download_zipfile()
+        source_dataset.unzip_zipfile()
+        source_dataset.transform_txt_to_csv()
 
         info('Getting the dataset row count..')
-        ds_reader = DatasetReader(contributions_csv_file)
+        ds_reader = DatasetReader(ABS_PATH + EXTERNAL_DATA_DIR)
         info(f'\tDataset row count is: {len(ds_reader)}')
 
 
-    # start_time = time()
-    # print('Starting (TO NOTE: Part_1 takes ~10.5 minutes to complete.)...\n')
-
-
     elif args.setup_database:
+        #################################################################################
+        # '-sd'
+        #################################################################################
         db = Postgres()
         info('Dropping tables if exist..\n')
         info(db.drop_table())
@@ -69,7 +66,6 @@ def main(args):
         info(db.update_rows())
 
         db.process_donors_table()
-        # print("Database Init Duration: --- %s seconds ---" % (time() - start_time))
 
 
     elif args.get_partial_duplicate:
@@ -79,7 +75,6 @@ def main(args):
         sg_start_time = time()
         unique, duplicate, total, nans = dup_record.get_partial_duplicates()
         info(f'Unique: {unique}, Duplicate: {duplicate}, Total: {total}, Nan: {nans}')
-        print(f'string_grouper duration:--- {((time() - sg_start_time) / 60.0)} minutes ---')
 
     elif args.get_exact_duplicate:
         info('Starting get_exact_duplicates...\n')
@@ -87,7 +82,6 @@ def main(args):
         dup_record = Postgres()
 
         info(dup_record.get_exact_duplicates())
-        info(f'sql Duration:--- %s{((time() - sql_start_time))} seconds ---')
 
 
     sql_query = args.sql_query
@@ -139,6 +133,7 @@ if __name__ == "__main__":
                         action='store_true',
                         default=False)
 
+    start_time = time()
     try:
         args = parser.parse_args()
         main(args)
@@ -146,3 +141,6 @@ if __name__ == "__main__":
         print(f'Error: {e}')
     finally:
         print('Done')
+        print('--- %s seconds ---' % round((time() - start_time),2))
+        print('--- %s minutes ---' % round((time() - start_time)/ 60,2))
+

@@ -15,6 +15,8 @@ import psycopg2
 import psycopg2.extras
 from psycopg2.errors import DatabaseError, OperationalError, SyntaxError
 from logging import exception
+from logging import info
+
 import pandas as pd
 pd.set_option('display.max_columns', None)
 
@@ -76,11 +78,11 @@ class Postgres:
             try:
                 cur.execute(query)
                 self.con.commit()
-                # print("Query executed sucessfully")
-            # except SyntaxError:
-                # self.logs.error("execute_query failed: %s" % query)
+                info("Query executed sucessfully")
+            except SyntaxError as e:
+                exception(f'SyntaxError: {e}')
             except DatabaseError as e:
-                print(f'Error: {e}')
+                # print(f'Error: {e}')
                 exception(f'Database Error: {e}')
 
             else:
