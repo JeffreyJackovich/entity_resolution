@@ -12,16 +12,16 @@ from dataset import DatasetReader
 from os import path
 from postgres import Postgres
 from time import time
-from duplicate_record import DuplicateRecord
 from argparse import ArgumentParser
+from logging import basicConfig
+from logging import DEBUG
+from logging import ERROR
+from logging import info
+from logging import exception
 
 ABS_PATH = path.abspath('..')
 EXTERNAL_DATA_DIR = '/data/external/'
 CONTRIBUTIONS_PATH = ABS_PATH + EXTERNAL_DATA_DIR
-
-
-# TODO LOGS_FORMAT = '%(asctime)s ; %(name)s ; %(process)d ; %(thread)d ; %(levelname)s ; %(message)s'
-
 
 _file = 'Illinois-campaign-contributions'
 contributions_zip_file = CONTRIBUTIONS_PATH + _file + '.txt.zip'
@@ -48,54 +48,59 @@ contributions_csv_file = CONTRIBUTIONS_PATH + _file + '.csv'
 def main(args):
     # print(args)
 
+    basicConfig(filename=ABS_PATH + '/entity_resolution/entity_resolution/log/log_file.log',
+                format='%(asctime)s - %(lineno)d - %(name)s - %(levelname)s - %(message)s',
+                filemode='a', level=DEBUG)  # level=ERROR
 
     if args.get_dataset:
-        print('Downloading the dataset..\n')
+        info('Downloading the dataset..\n')
+        # print('Downloading the dataset..\n')
         source_dataset = Dataset(CONTRIBUTIONS_PATH)
         source_dataset.download_file()
 
-        print('Getting the dataset row count..')
+        info('Getting the dataset row count..')
+        # print('Getting the dataset row count..')
         ds_reader = DatasetReader(contributions_csv_file)
-        print('\tDataset row count is: {} \n'.format(len(ds_reader)))
+        info(f'\tDataset row count is: {len(ds_reader)}')
+        # print('\tDataset row count is: {} \n'.format(len(ds_reader)))
 
 
     # start_time = time()
     # print('Starting (TO NOTE: Part_1 takes ~10.5 minutes to complete.)...\n')
-    ###########################################################################
-    # TODO logging.basicConfig(format=LOGS_FORMAT,
-    #                     datefmt='%d-%m-%Y %H:%M:%S',
-    #                     filename="tmp/entity_resolution.log",
-    #                     filemode='w',
-    #                     level=logging.DEBUG)
-    #
-    # logging.info('INFO test log message')
-    # logging.debug('debug test log message')
-    ###########################################################################
 
 
     elif args.setup_database:
         db = Postgres()
-        print('Dropping tables if exist..\n')
-        print(db.drop_table())
+        info('Dropping tables if exist..\n')
+        # print('Dropping tables if exist..\n')
+        info(db.drop_table())
+        # print(db.drop_table())
 
-        print('Creating the tables..\n')
+        info('Creating the tables..\n')
+        # print('Creating the tables..\n')
         # print('creating recipients table...')
         # print('creating contributions table...')
-        print(db.create_table())
+        info(db.create_table())
+        # print(db.create_table())
 
-        print('Importing raw data from csv...\n')
-        print(db.copy_csv_query())
+        info('Importing raw data from csv...\n')
+        info(db.copy_csv_query())
+        # print('Importing raw data from csv...\n')
+        # print(db.copy_csv_query())
 
-        print('Inserting data into tables...\n')
-        print(db.insert())
+        info('Inserting data into tables...\n')
+        info(db.insert())
+        # print('Inserting data into tables...\n')
+        # print(db.insert())
 
-        print('Creating indexes on tables...\n')
+        info('Creating indexes on tables...\n')
+        # print('Creating indexes on tables...\n')
         # print('creating indexes on donors table...')
         # print('creating indexes on contributions...')
-        print(db.create_index())
+        info(db.create_index())
 
-        print('Nullifying empty strings in donors...\n')
-        print(db.update_rows())
+        info('Nullifying empty strings in donors...\n')
+        info(db.update_rows())
 
         # print('creating processed_donors...')
         db.process_donors_table()
@@ -103,19 +108,25 @@ def main(args):
 
 
     elif args.get_partial_duplicate:
-        print('Starting string_grouper...\n')
-        dup_record = DuplicateRecord()
+        info('Starting string_grouper...\n')
+        dup_record = Postgres()
+        # dup_record = DuplicateRecord()
+
         sg_start_time = time()
         unique, duplicate, total, nans = dup_record.get_partial_duplicates()
-        print("Unique: {}, Duplicate: {}, Total: {}, Nan: {}".format(unique, duplicate, total, nans))
-        print("string_grouper duration:--- %s minutes ---" % ((time() - sg_start_time)/60.0))
+        info(f'Unique: {unique}, Duplicate: {duplicate}, Total: {total}, Nan: {nans}')
+        print(f'string_grouper duration:--- {((time() - sg_start_time) / 60.0)} minutes ---')
+        # print("Unique: {}, Duplicate: {}, Total: {}, Nan: {}".format(unique, duplicate, total, nans))
+        # print("string_grouper duration:--- %s minutes ---" % ((time() - sg_start_time)/60.0))
 
     elif args.get_exact_duplicate:
-        print('Starting get_exact_duplicates...\n')
+        info('Starting get_exact_duplicates...\n')
         sql_start_time = time()
-        dup_record = DuplicateRecord()
-        print(dup_record.get_exact_duplicates())
-        print("sql Duration:--- %s seconds ---".format((time() - sql_start_time)))
+        dup_record = Postgres()
+        # dup_record = DuplicateRecord()
+        info(dup_record.get_exact_duplicates())
+        info(f'sql Duration:--- %s{((time() - sql_start_time))} seconds ---')
+        # print("sql Duration:--- %s seconds ---".format((time() - sql_start_time)))
 
 
     sql_query = args.sql_query
