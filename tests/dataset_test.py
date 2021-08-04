@@ -22,7 +22,7 @@ def test_source_filename(my_dataset):
 
 @fixture
 def my_dataset_reader():
-    return DatasetReader(PATH=ABS_PATH+EXTERNAL_DATA_DIR)
+    return DatasetReader(PATH=ABS_PATH + '/external/' +EXTERNAL_DATA_DIR)
 
 def test_dataset_len(my_dataset_reader):
     """

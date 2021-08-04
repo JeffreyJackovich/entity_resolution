@@ -90,7 +90,7 @@ class DatasetReader:
     def __iter__(self):
         self._length = 0
         self._counter = Counter()
-        with open(self.PATH + DatasetReader.contributions_csv_file, 'rU') as data:
+        with open(self.PATH + DatasetReader.contributions_csv_file, 'r') as data: # 'rU'
             reader = csv.DictReader(data)
             for row in reader:
                 self._length += 1
